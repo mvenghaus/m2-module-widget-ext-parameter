@@ -88,6 +88,7 @@ class WidgetList extends Template
             );
         }
 
+        $this->addMoveButtons($fieldset);
         $this->addRemoveButton($fieldset);
 
         return $fieldset->getElementHtml();
@@ -98,7 +99,7 @@ class WidgetList extends Template
         return $this->context->getLayout()
             ->createBlock(WidgetButton::class)
             ->setType('button')
-            ->setLabel('Add New')
+            ->setLabel(__('Add'))
             ->setOnClick($this->getAddOnClickJs($group, $widgetClass))
             ->toHtml();
     }
@@ -111,6 +112,33 @@ class WidgetList extends Template
             [
                 'value' => __('Remove'),
                 'onclick' => "jQuery(this).parents('fieldset:first').remove()"
+            ]
+        );
+    }
+    public function addMoveButtons(Fieldset $fieldset): void
+    {
+        $fieldset->addField(
+            $fieldset->getHtmlId() . '__move_container',
+            'note',
+            [
+                'text' => '
+                <button onclick="
+                var currentFieldset = jQuery(this).parents(\'fieldset:first\');
+                var prevFieldset = currentFieldset.prev(\'fieldset\');
+                if (prevFieldset.length > 0) {
+                    currentFieldset.insertBefore(prevFieldset);
+                }
+                return false;
+                ">' . __('Move up') . '</button>&nbsp;
+                <button onclick="
+                var currentFieldset = jQuery(this).parents(\'fieldset:first\');
+                var nextFieldset = currentFieldset.next(\'fieldset\');
+                if (nextFieldset.length > 0) {
+                    currentFieldset.insertAfter(nextFieldset);
+                }
+                return false;
+                ">' . __('Move down') . '</button>&nbsp;
+                '
             ]
         );
     }
