@@ -27,4 +27,11 @@ class WidgetPlugin
 
         return [$type, $params, $asIs];
     }
+
+    public function afterGetWidgetsArray(Widget $subject, $result, $filters = [])
+    {
+        return array_filter($result, function ($widgetData) {
+            return !preg_match('/_hidden$/is', $widgetData['code']);
+        });
+    }
 }
