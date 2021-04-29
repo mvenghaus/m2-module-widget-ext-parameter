@@ -69,7 +69,7 @@ namespace Vendor\Module\Block\Widget;
 
 use Inkl\WidgetExtParameter\Block\Widget\WidgetList;
 
-class VisualList extends WidgetList
+class ExampleList extends WidgetList
 {
     protected $_template = 'Vendor_Module::widget/example-list.phtml';
 }
@@ -86,14 +86,14 @@ namespace Vendor\Module\Block\Widget;
 use Magento\Framework\View\Element\Template;
 use Magento\Widget\Block\BlockInterface;
 
-class VisualItem extends Template implements BlockInterface
+class ExampleItem extends Template implements BlockInterface
 {
 }
 ```
 
 ### view/frontend/templates/widget/example-list.phtml
 ```php
-<?php /** @var \Vendor\Module\Block\Widget\VisualList $block */ ?>
+<?php /** @var \Vendor\Module\Block\Widget\ExampleList $block */ ?>
 <h1>Example List</h1>
 
 <?php foreach ($block->getItems('example_item') as $exampleItem): ?>
