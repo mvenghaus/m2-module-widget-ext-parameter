@@ -74,12 +74,17 @@ class WidgetList extends Template
 
         $fieldset = $this->createItemFieldset($rootElemenet, $group, $uniqueId);
         foreach ($parameters as $parameter) {
+            $parameterKey = $parameter->getData('key');
+            if ($parameterKey === 'widget_name') {
+                continue;
+            }
+
             $this->createItemField(
                 $fieldset,
                 $parameter,
                 $group,
                 $uniqueId,
-                $values[$parameter->getData('key')] ?? ''
+                $values[$parameterKey] ?? ''
             );
         }
 
