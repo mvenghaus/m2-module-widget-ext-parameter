@@ -30,8 +30,13 @@ class InstancePlugin
                 continue;
             }
 
-            $widgetData['code'] = $widgetCode;
-            
+            $widgetData = [
+                'name' => __((string)$widgetData['name']),
+                'code' => $widgetCode,
+                'type' => $widgetData['@']['type'],
+                'description' => __((string)$widgetData['description'])
+            ];
+
             $widgets[] = ['value' => $widgetData[$value], 'label' => $widgetData['name']];
         }
 
