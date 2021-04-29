@@ -1,0 +1,203 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Inkl\WidgetExtParameter\Block\Adminhtml\Widget;
+
+use Magento\Backend\Block\Template;
+use Magento\Backend\Block\Template\Context;
+use Magento\Backend\Block\Widget\Button as WidgetButton;
+use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Framework\Data\Form\Element\Fieldset;
+use Magento\Framework\DataObject;
+use Magento\Framework\Option\ArrayPool;
+use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Framework\Serialize\Serializer\Base64Json;
+use Magento\Ui\Component\Form\Field;
+use Magento\Widget\Model\Widget;
+
+class WidgetList extends Template
+{
+    private Context $context;
+    private Widget $widget;
+    private Base64Json $base64Json;
+    private Json $json;
+    private ArrayPool $sourceModelPool;
+
+    public function __construct(
+        Context $context,
+        Widget $widget,
+        Json $json,
+        Base64Json $base64Json,
+        ArrayPool $sourceModelPool,
+        array $data = []
+    ) {
+        $this->context = $context;
+        $this->widget = $widget;
+        $this->json = $json;
+        $this->base64Json = $base64Json;
+        $this->sourceModelPool = $sourceModelPool;
+        parent::__construct($context, $data);
+    }
+
+    public function prepareElementHtml(AbstractElement $element)
+    {
+        $config = $this->_getData('config');
+
+        $group = $config['group'];
+        $widgetClass = $config['widget_class'];
+        $widgetListGroupValues = $this->getWidgetListGroupValues($group);
+
+        $html = '';
+        if (count($widgetListGroupValues) === 0) {
+            $html .= $this->renderItem($element, $group, uniqid(), $widgetClass);
+        } else {
+            foreach ($widgetListGroupValues as $uniqueId => $values) {
+                $html .= $this->renderItem($element, $group, $uniqueId, $widgetClass, $values);
+            }
+        }
+
+        $html .= $this->renderAddButton($group, $widgetClass);
+
+        $element->setData('after_element_html', $html);
+    }
+
+    public function renderItem(
+        AbstractElement $rootElemenet,
+        string $group,
+        string $uniqueId,
+        string $widgetClass,
+        array $values = []
+    ): string {
+        $widgetConfig = $this->widget->getConfigAsObject($widgetClass);
+        $parameters = $widgetConfig->getData('parameters');
+
+        $fieldset = $this->createItemFieldset($rootElemenet, $group, $uniqueId);
+        foreach ($parameters as $parameter) {
+            $this->createItemField(
+                $fieldset,
+                $parameter,
+                $group,
+                $uniqueId,
+                $values[$parameter->getData('key')] ?? ''
+            );
+        }
+
+        $this->addRemoveButton($fieldset);
+
+        return $fieldset->getElementHtml();
+    }
+
+    public function renderAddButton(string $group, string $widgetClass): string
+    {
+        return $this->context->getLayout()
+            ->createBlock(WidgetButton::class)
+            ->setType('button')
+            ->setLabel('Add New')
+            ->setOnClick($this->getAddOnClickJs($group, $widgetClass))
+            ->toHtml();
+    }
+
+    public function addRemoveButton(Fieldset $fieldset): void
+    {
+        $fieldset->addField(
+            $fieldset->getHtmlId() . '__remove',
+            'button',
+            [
+                'value' => __('Remove'),
+                'onclick' => "jQuery(this).parents('fieldset:first').remove()"
+            ]
+        );
+    }
+
+    public function createItemFieldset(AbstractElement $rootElement, string $group, string $uniqueId): Fieldset
+    {
+        return $rootElement->addFieldset(
+            $this->getItemFieldsetHtmlId($group, $uniqueId),
+            [
+                'class' => 'fieldset-wide fieldset-widget-options',
+                'style' => 'margin-bottom: 20px;'
+            ]
+        );
+    }
+
+    public function getItemFieldsetHtmlId(string $group, string $uniqueId): string
+    {
+        return 'options_fieldset__' . $group . '__' . $uniqueId;
+    }
+
+    public function createItemField(
+        Fieldset $fieldset,
+        DataObject $parameter,
+        string $group,
+        string $unqiueId,
+        string $value
+    ): AbstractElement {
+        $fieldId = sprintf('parameters__%s__%s__%s', $group, $unqiueId, $parameter->getData('key'));
+        $fieldName = sprintf('parameters[widget_list][%s][%s][%s]', $group, $unqiueId, $parameter->getData('key'));
+        $fieldType = $parameter->getData('type');
+
+        $data = [
+            'name' => $fieldName,
+            'label' => __($parameter->getData('label')),
+            'required' => $parameter->getData('required'),
+            'class' => 'widget-option',
+            'note' => __($parameter->getData('description')),
+            'value' => $value
+        ];
+
+        if ($values = $parameter->getData('values')) {
+            $data['values'] = [];
+            foreach ($values as $option) {
+                $data['values'][] = ['label' => __($option['label']), 'value' => $option['value']];
+            }
+        } elseif ($sourceModel = $parameter->getData('source_model')) {
+            $data['values'] = $this->sourceModelPool->get($sourceModel)->toOptionArray();
+        }
+
+        $field = $fieldset->addField($fieldId, $fieldType, $data);
+
+        if ($helper = $parameter->getData('helper_block')) {
+            $helperBlock = $this->context->getLayout()->createBlock(
+                $helper->getType(),
+                '',
+                ['data' => $helper->getData()]
+            );
+            if ($helperBlock instanceof DataObject) {
+                $helperBlock
+                    ->setConfig($helper->getData())
+                    ->setFieldsetId($fieldset->getId())
+                    ->prepareElementHtml($field);
+            }
+        }
+
+        return $field;
+    }
+
+    public function getWidgetListGroupValues(string $group): array
+    {
+        $widgetRequestData = $this->json->unserialize($this->context->getRequest()->getPost('widget'));
+        $widgetValues =  $widgetRequestData['values'] ?? [];
+        $widgetListValues = $this->base64Json->unserialize($widgetValues['widget_list'] ?? '');
+
+        return $widgetListValues[$group] ?? [];
+    }
+
+    public function getAddOnClickJs(string $group, string $widgetClass): string
+    {
+        $url = $this->context->getUrlBuilder()->getUrl('adminhtml/widget_widgetList/add');
+        $widgetClass = str_replace('\\', '\\\\', $widgetClass);
+
+        return <<<PHP_EOF
+(function ($) {
+    $.post('{$url}', { 
+        'form_key': FORM_KEY,
+        'group' : '{$group}',
+        'widget_class' : '{$widgetClass}'
+    }, function(data) {
+      $('fieldset[id^=options_fieldset__{$group}]:last').after(data);
+    });
+})(jQuery);
+PHP_EOF;
+    }
+}
