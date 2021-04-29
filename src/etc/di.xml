@@ -5,4 +5,9 @@
         <plugin name="handle-widget-list-values-and-visibility"
                 type="Inkl\WidgetExtParameter\Plugin\Magento\Widget\Model\WidgetPlugin"/>
     </type>
+
+    <type name="Magento\Widget\Model\Widget\Instance">
+        <plugin name="remove-widget-list-widgets-from-instance-selection"
+                type="Inkl\WidgetExtParameter\Plugin\Magento\Widget\Model\Widget\InstancePlugin"/>
+    </type>
 </config>
