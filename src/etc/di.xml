@@ -5,8 +5,4 @@
         <plugin name="handle-widget-list-values"
                 type="Inkl\WidgetExtParameter\Plugin\Magento\Widget\Model\WidgetPlugin"/>
     </type>
-    <type name="Magento\Widget\Model\Widget\Config">
-        <plugin name="replace-editor-plugin-js"
-                type="Inkl\WidgetExtParameter\Plugin\Magento\Widget\Model\Widget\ConfigPlugin"/>
-    </type>
 </config>
