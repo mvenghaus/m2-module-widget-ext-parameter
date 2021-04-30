@@ -28,6 +28,7 @@ class Textarea extends Template
         $input->setId($element->getId());
         $input->setForm($element->getForm());
         $input->setClass("widget-option input-textarea admin__control-text");
+        $input->setData('rows', $this->getData('rows'));
         if ($element->getRequired()) {
             $input->addClass('required-entry');
         }
