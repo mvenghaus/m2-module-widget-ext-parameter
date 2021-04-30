@@ -42,7 +42,7 @@ class ImageChooser extends Template
             ->setOnClick('MediabrowserUtility.openDialog(\'' . $sourceUrl . '\')')
             ->setDisabled($element->getReadonly());
 
-        $input = $this->elementFactory->create("text", ['data' => $element->getData()]);
+        $input = $this->elementFactory->create('text', ['data' => $element->getData()]);
         $input->setId($element->getId());
         $input->setForm($element->getForm());
         $input->setClass("widget-option input-text admin__control-text");

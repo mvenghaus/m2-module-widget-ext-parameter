@@ -12,15 +12,12 @@ use Magento\Framework\Data\Form\Element\Fieldset;
 use Magento\Framework\DataObject;
 use Magento\Framework\Option\ArrayPool;
 use Magento\Framework\Serialize\Serializer\Json;
-use Magento\Framework\Serialize\Serializer\Base64Json;
-use Magento\Ui\Component\Form\Field;
 use Magento\Widget\Model\Widget;
 
 class WidgetList extends Template
 {
     private Context $context;
     private Widget $widget;
-    private Base64Json $base64Json;
     private Json $json;
     private ArrayPool $sourceModelPool;
 
@@ -28,14 +25,12 @@ class WidgetList extends Template
         Context $context,
         Widget $widget,
         Json $json,
-        Base64Json $base64Json,
         ArrayPool $sourceModelPool,
         array $data = []
     ) {
         $this->context = $context;
         $this->widget = $widget;
         $this->json = $json;
-        $this->base64Json = $base64Json;
         $this->sourceModelPool = $sourceModelPool;
         parent::__construct($context, $data);
     }
@@ -209,9 +204,10 @@ class WidgetList extends Template
 
     public function getWidgetListGroupValues(string $group): array
     {
-        $widgetRequestData = $this->json->unserialize($this->context->getRequest()->getPost('widget'));
-        $widgetValues =  $widgetRequestData['values'] ?? [];
-        $widgetListValues = $this->base64Json->unserialize($widgetValues['widget_list'] ?? '');
+        $optionsBlock = $this->context->getLayout()->getBlock('wysiwyg_widget.options');
+
+        $widgetValues =  $optionsBlock->getData('widget_values');
+        $widgetListValues = $widgetValues['widget_list'] ?? [];
 
         return $widgetListValues[$group] ?? [];
     }

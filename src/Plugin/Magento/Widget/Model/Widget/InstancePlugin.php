@@ -5,16 +5,21 @@ declare(strict_types=1);
 namespace Inkl\WidgetExtParameter\Plugin\Magento\Widget\Model\Widget;
 
 use Inkl\WidgetExtParameter\Block\Adminhtml\Widget\WidgetList;
+use Inkl\WidgetExtParameter\Model\Service\NameModifierService;
 use Magento\Widget\Model\Widget;
 use Magento\Widget\Model\Widget\Instance;
 
 class InstancePlugin
 {
     private Widget $widget;
+    private NameModifierService $nameModifierService;
 
-    public function __construct(Widget $widget)
-    {
+    public function __construct(
+        Widget $widget,
+        NameModifierService $nameModifierService
+    ) {
         $this->widget = $widget;
+        $this->nameModifierService = $nameModifierService;
     }
 
     /**
@@ -24,7 +29,7 @@ class InstancePlugin
     {
         $widgets = [];
         foreach ($this->widget->getWidgets() as $widgetCode => $widgetData) {
-            if (preg_match('/_hidden$/is', $widgetCode) ||
+            if ($this->nameModifierService->hasHidden($widgetCode) ||
                 substr_count(serialize($widgetData), WidgetList::class) // phpcs:ignore
             ) {
                 continue;

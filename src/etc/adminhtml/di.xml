@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <type name="Magento\Widget\Block\Adminhtml\Widget\Options">
+        <plugin name="decode-base64-values-admin"
+                type="Inkl\WidgetExtParameter\Plugin\Magento\Widget\Block\Adminhtml\Widget\OptionsPlugin"/>
+    </type>
+
+    <type name="Magento\Widget\Model\Widget">
+        <plugin name="handle-widget-list-values-and-visibility"
+                type="Inkl\WidgetExtParameter\Plugin\Magento\Widget\Model\WidgetPlugin"/>
+    </type>
+
+    <type name="Magento\Widget\Model\Widget\Instance">
+        <plugin name="remove-widget-list-widgets-from-instance-selection"
+                type="Inkl\WidgetExtParameter\Plugin\Magento\Widget\Model\Widget\InstancePlugin"/>
+    </type>
+</config>
