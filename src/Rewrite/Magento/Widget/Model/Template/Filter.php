@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace Inkl\WidgetExtParameter\Rewrite\Magento\Widget\Model\Template;
 
 use Inkl\WidgetExtParameter\Model\Service\Base64Service;
+use Magento\Cms\Model\Template\FilterProvider;
 
 class Filter extends \Magento\Widget\Model\Template\Filter
 {
     private Base64Service $base64Service;
+    private FilterProvider $filterProvider;
+
+    private bool $recursiveCheck = false;
 
     public function __construct(
         \Magento\Framework\Stdlib\StringUtils $string,
@@ -26,9 +30,12 @@ class Filter extends \Magento\Widget\Model\Template\Filter
         \Magento\Variable\Model\Source\Variables $configVariables,
         \Magento\Widget\Model\ResourceModel\Widget $widgetResource,
         \Magento\Widget\Model\Widget $widget,
-        Base64Service $base64Service
+        Base64Service $base64Service,
+        FilterProvider $filterProvider
     ) {
         $this->base64Service = $base64Service;
+        $this->filterProvider = $filterProvider;
+
         parent::__construct(
             $string,
             $logger,
@@ -48,7 +55,6 @@ class Filter extends \Magento\Widget\Model\Template\Filter
         );
     }
 
-
     protected function getParameters($value)
     {
         $parameters = parent::getParameters($value);
@@ -57,6 +63,24 @@ class Filter extends \Magento\Widget\Model\Template\Filter
             $parameters[$key . '--base64'] = $this->base64Service->unserialize($value);
         }
 
+        if (!$this->recursiveCheck) {
+            $this->recursiveCheck = true;
+            $parameters = $this->arrayMapRecursive([$this->filterProvider->getBlockFilter(), 'filter'], $parameters);
+            $this->recursiveCheck = false;
+        }
+
         return $parameters;
+    }
+
+    private function arrayMapRecursive(callable $callback, array $array): array
+    {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $array[$key] = $this->arrayMapRecursive($callback, $value);
+            } else {
+                $array[$key] = $callback($value);
+            }
+        }
+        return $array;
     }
 }
