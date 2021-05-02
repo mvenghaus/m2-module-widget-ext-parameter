@@ -22,7 +22,6 @@ class OptionsPlugin
 
         foreach ($widgetValues as $key => $value) {
             $widgetValues[$key] = $this->base64Service->unserialize($value);
-            $widgetValues[$key . '--base64'] = $this->base64Service->unserialize($value);
         }
 
         $subject->setData('widget_values', $widgetValues);

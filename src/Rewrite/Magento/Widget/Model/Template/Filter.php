@@ -60,7 +60,6 @@ class Filter extends \Magento\Widget\Model\Template\Filter
         $parameters = parent::getParameters($value);
         foreach ($parameters as $key => $value) {
             $parameters[$key] = $this->base64Service->unserialize($value);
-            $parameters[$key . '--base64'] = $this->base64Service->unserialize($value);
         }
 
         if (!$this->recursiveCheck) {
