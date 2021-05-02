@@ -2,6 +2,9 @@
 	"name": "inkl/m2-module-widget-ext-parameter",
 	"description": "Add additional widget parameter WidgetList, ImageChooser, Textarea",
 	"type": "magento2-module",
+	"require": {
+		"inkl/m2-module-widget-ext-xsd": "dev-master"
+	},
 	"autoload": {
 		"files": [
 			"src/registration.php"
