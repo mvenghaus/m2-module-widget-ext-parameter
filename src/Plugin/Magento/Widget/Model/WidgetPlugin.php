@@ -41,7 +41,7 @@ class WidgetPlugin
 
         foreach ($widgetConfig->getData('parameters') as $parameter) {
             if ($parameter->getData('key') === $parameterName &&
-                (int)($parameter->getData('extra')['base64'] ?? 0) === 1
+                ($parameter->getData('extra')['base64'] ?? 'false') === 'true'
             ) {
                 return true;
             }
@@ -56,7 +56,7 @@ class WidgetPlugin
     public function afterGetWidgetsArray(Widget $subject, $result, $filters = [])
     {
         return array_filter($result, function ($widgetData) {
-            return (int)($widgetData['extra']['hidden'] ?? 0) === 0;
+            return ($widgetData['extra']['hidden'] ?? 'false') === 'false';
         });
     }
 }

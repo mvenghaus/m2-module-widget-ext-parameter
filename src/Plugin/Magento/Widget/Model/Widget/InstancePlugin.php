@@ -24,7 +24,7 @@ class InstancePlugin
     {
         $widgets = [];
         foreach ($this->widget->getWidgets() as $widgetCode => $widgetData) {
-            if ((int)($widgetData['extra']['hidden'] ?? 0) === 1 ||
+            if (($widgetData['extra']['hidden'] ?? 'false') === 'true' ||
                 substr_count(serialize($widgetData), WidgetList::class) // phpcs:ignore
             ) {
                 continue;
