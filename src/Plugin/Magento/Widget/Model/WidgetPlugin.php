@@ -55,6 +55,11 @@ class WidgetPlugin
      */
     public function afterGetWidgetsArray(Widget $subject, $result, $filters = [])
     {
+        $widgets = $subject->getWidgets($filters);
+        foreach ($result as &$data) {
+            $data['extra'] = $widgets[$data['code']]['extra'] ?? [];
+        }
+
         return array_filter($result, function ($widgetData) {
             return ($widgetData['extra']['hidden'] ?? 'false') === 'false';
         });
