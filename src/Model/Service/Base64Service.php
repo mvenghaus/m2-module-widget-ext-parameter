@@ -24,14 +24,13 @@ class Base64Service
         return 'base64::' . $this->base64Json->serialize($data);
     }
 
-    public function unserialize(string $data)
+    public function unserialize($data)
     {
-        if (preg_match('/^base64::/is', $data)) {
+        if (is_string($data) && preg_match('/^base64::/is', $data)) {
             $data = preg_replace('/^base64::/is', '', $data);
             $data = $this->base64Json->unserialize($data);
         }
 
         return $data;
     }
-
 }
