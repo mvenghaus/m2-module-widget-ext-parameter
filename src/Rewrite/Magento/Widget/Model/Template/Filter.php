@@ -26,12 +26,17 @@ class Filter extends \Magento\Widget\Model\Template\Filter
         \Magento\Framework\View\LayoutFactory $layoutFactory,
         \Magento\Framework\App\State $appState,
         \Magento\Framework\UrlInterface $urlModel,
-        \Pelago\Emogrifier $emogrifier,
         \Magento\Variable\Model\Source\Variables $configVariables,
         \Magento\Widget\Model\ResourceModel\Widget $widgetResource,
         \Magento\Widget\Model\Widget $widget,
+        \Magento\Framework\Filter\VariableResolverInterface $variableResolver,
+        \Magento\Framework\Css\PreProcessor\Adapter\CssInliner $cssInliner,
+        \Magento\Email\Model\Template\Css\Processor $cssProcessor,
+        \Magento\Framework\Filesystem $pubDirectory,
         Base64Service $base64Service,
-        FilterProvider $filterProvider
+        FilterProvider $filterProvider,
+        $variables = [],
+        array $directiveProcessors = []
     ) {
         $this->base64Service = $base64Service;
         $this->filterProvider = $filterProvider;
@@ -48,10 +53,15 @@ class Filter extends \Magento\Widget\Model\Template\Filter
             $layoutFactory,
             $appState,
             $urlModel,
-            $emogrifier,
             $configVariables,
+            $variableResolver,
+            $cssProcessor,
+            $pubDirectory,
+            $cssInliner,
             $widgetResource,
-            $widget
+            $widget,
+            $variables,
+            $directiveProcessors
         );
     }
 
