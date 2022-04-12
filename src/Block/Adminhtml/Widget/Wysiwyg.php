@@ -57,7 +57,7 @@ Class Wysiwyg extends \Magento\Backend\Block\Template
             $editor->addClass('required-entry');
         }
 
-        $element->setData('after_element_html', $editor->getElementHtml());
+        $element->setData('after_element_html', $editor->getElementHtml() . '<style>.textareawidget-option { height: 400px; }</style>');
         $element->setValue(''); // Hides the additional label that gets added.
 
         return $element;
