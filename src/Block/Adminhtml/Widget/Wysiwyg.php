@@ -41,17 +41,18 @@ Class Wysiwyg extends \Magento\Backend\Block\Template
      */
     public function prepareElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
+        $wysiwygConfig = $this->wysiwygConfig->getConfig([
+            'add_widgets' => false,
+            'add_variables' => false,
+        ]);
+        $wysiwygConfig->setData('add_images', false);
+
         $editor = $this->factoryElement->create('editor', ['data' => $element->getData()])
             ->setLabel('')
             ->setForm($element->getForm())
             ->setWysiwyg(true)
-            ->setConfig(
-                $this->wysiwygConfig->getConfig([
-                    'add_variables' => false,
-                    'add_widgets' => false,
-                    'add_images' => false
-                ])
-            );
+            ->setForceLoad(true)
+            ->setConfig($wysiwygConfig);
 
         if ($element->getRequired()) {
             $editor->addClass('required-entry');
@@ -60,6 +61,12 @@ Class Wysiwyg extends \Magento\Backend\Block\Template
         $element->setData('after_element_html', $editor->getElementHtml() . '<style>.textareawidget-option { height: 400px; }</style>');
         $element->setValue(''); // Hides the additional label that gets added.
 
+        /*
+        echo '<pre>';
+        print_r($wysiwygConfig->getData()); exit;
+        */
+
         return $element;
     }
 }
+
